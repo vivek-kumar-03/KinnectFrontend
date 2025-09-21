@@ -2,33 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom CSS Variables - Updated for custom theme system */
-:root {
-  /* Legacy gradients */
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  --chat-bubble-me: linear-gradient(135deg, var(--chatBubbleMe) 0%, var(--primaryDark) 100%);
-  --chat-bubble-other: linear-gradient(135deg, var(--chatBubbleOther) 0%, var(--surface) 100%);
-  
-  /* Theme Variables - Will be set by ThemeContext */
-  --primary: #3b82f6;
-  --primaryLight: #60a5fa;
-  --primaryDark: #2563eb;
-  --secondary: #8b5cf6;
-  --background: #ffffff;
-  --surface: #f8fafc;
-  --surfaceHover: #f1f5f9;
-  --textPrimary: #1e293b;
-  --textSecondary: #64748b;
-  --border: #e2e8f0;
-  --success: #10b981;
-  --error: #ef4444;
-  --warning: #f59e0b;
-  --chatBubbleMe: #3b82f6;
-  --chatBubbleOther: #f1f5f9;
-}
-
 /* Base Styles */
 * {
   margin: 0;
@@ -36,13 +9,42 @@
   box-sizing: border-box;
 }
 
+:root {
+  /* Default theme variables (light theme) */
+  --primary: #3b82f6;
+  --primary-light: #60a5fa;
+  --primary-dark: #2563eb;
+  --secondary: #8b5cf6;
+  --background: #ffffff;
+  --surface: #f8fafc;
+  --surface-hover: #f1f5f9;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --success: #10b981;
+  --error: #ef4444;
+  --warning: #f59e0b;
+  --chat-bubble-me: #3b82f6;
+  --chat-bubble-other: #f1f5f9;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   line-height: 1.6;
-  color: var(--textPrimary);
-  background: var(--background);
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--background);
+  color: var(--text-primary);
+}
+
+/* Ensure navbar is always visible */
+header {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
 }
 
 /* Custom Component Classes */
@@ -55,14 +57,14 @@ body {
   }
 
   .chat-bubble-me {
-    background: var(--chat-bubble-me);
-    color: white;
+    background-color: var(--chat-bubble-me);
+    color: var(--text-primary);
     margin-left: auto;
   }
 
   .chat-bubble-other {
-    background: var(--chat-bubble-other);
-    color: var(--textPrimary);
+    background-color: var(--chat-bubble-other);
+    color: var(--text-primary);
     border: 1px solid var(--border);
   }
   
@@ -85,33 +87,32 @@ body {
   /* Message bubble improvements */
   .message-bubble {
     position: relative;
-    border-radius: 1rem;
+    border-radius: 0.75rem;
     padding: 0.75rem 1rem;
     margin: 0.25rem 0;
     max-width: 70%;
     word-wrap: break-word;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     transition: all 0.2s ease;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--textPrimary);
+    background-color: var(--surface);
+    color: var(--text-primary);
   }
   
   .message-bubble:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
   
   /* Message bubbles for sender and receiver */
   .message-bubble-sender {
-    background: var(--chatBubbleMe);
+    background-color: var(--primary);
     color: white;
     margin-left: auto;
-    border: 1px solid var(--primaryDark);
+    border: 1px solid var(--primary);
   }
   
   .message-bubble-receiver {
-    background: var(--surface);
-    color: var(--textPrimary);
+    background-color: var(--surface);
+    color: var(--text-primary);
     border: 1px solid var(--border);
   }
   
@@ -127,14 +128,14 @@ body {
     left: -0.4rem;
     border: 0.4rem solid transparent;
     border-right-color: var(--surface);
-    border-left: none;
+    border-left-width: 0;
   }
   
   .message-tail-right {
     right: -0.4rem;
     border: 0.4rem solid transparent;
-    border-left-color: var(--chatBubbleMe);
-    border-right: none;
+    border-left-color: var(--primary);
+    border-right-width: 0;
   }
 }
 
@@ -166,7 +167,7 @@ body {
   
   .message-bubble {
     max-width: 85%;
-    padding: 0.625rem 0.875rem;
+    padding: 0.625rem 0.75rem;
     font-size: 0.875rem;
   }
 }
@@ -179,10 +180,11 @@ body {
   .message-bubble {
     max-width: 90%;
     padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
   }
   
   .navbar-brand {
-    @apply text-lg;
+    font-size: 1.125rem;
   }
 }
 
@@ -193,17 +195,17 @@ body {
   
   .chat-bubble {
     max-width: 95%;
-    @apply text-sm;
+    font-size: 0.875rem;
   }
   
   .message-bubble {
     max-width: 95%;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8125rem;
+    padding: 0.5rem;
+    font-size: 0.75rem;
   }
   
   .sidebar-header {
-    @apply p-3;
+    padding: 0.75rem;
   }
 }
 
@@ -213,17 +215,17 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: var(--surface);
-  border-radius: 3px;
+  background-color: var(--surface);
+  border-radius: 0.125rem;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
+  background-color: var(--border);
+  border-radius: 0.125rem;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--textSecondary);
+  background-color: var(--text-secondary);
 }
 
 /* Loading Animation */
@@ -236,7 +238,7 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: currentColor;
+  background-color: currentColor;
   animation: loading 1.4s ease-in-out infinite both;
 }
 
@@ -266,7 +268,7 @@ body {
 }
 
 .gradient-text {
-  background: var(--primary-gradient);
+  background: linear-gradient(to right, var(--primary), var(--secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -328,45 +330,4 @@ body {
   60% {
     transform: translateY(-5px);
   }
-}
-
-/* Theme-aware styles */
-.bg-theme-background {
-  background-color: var(--background);
-}
-
-.bg-theme-surface {
-  background-color: var(--surface);
-}
-
-.bg-theme-surface-hover:hover {
-  background-color: var(--surfaceHover);
-}
-
-.text-theme-primary {
-  color: var(--textPrimary);
-}
-
-.text-theme-secondary {
-  color: var(--textSecondary);
-}
-
-.border-theme {
-  border-color: var(--border);
-}
-
-.shadow-theme {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-/* Dark theme specific styles */
-body[data-theme="dark"] .shadow-theme {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-}
-
-/* Theme update function */
-.theme-update-script {
-  position: fixed;
-  top: -1000px;
-  left: -1000px;
 }

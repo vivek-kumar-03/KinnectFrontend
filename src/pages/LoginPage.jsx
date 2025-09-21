@@ -2,25 +2,22 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import AuthImagePattern from "../components/AuthImagePattern";
 import { Link, useLocation } from "react-router-dom";
-import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, User } from "lucide-react";
 import BackButton from "../components/BackButton";
 import toast from "react-hot-toast";
+import Logo from "../components/Logo";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
+    identifier: "", // Single field for username or email
     password: "",
   });
   const { login, isLoggingIn } = useAuthStore();
   const location = useLocation();
 
   const validateForm = () => {
-    if (!formData.email) return toast.error("Email is required");
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) return toast.error("Please enter a valid email address");
-    
+    if (!formData.identifier) return toast.error("Username or email is required");
     if (!formData.password) return toast.error("Password is required");
     return true;
   };
@@ -29,7 +26,8 @@ const LoginPage = () => {
     e.preventDefault();
     const success = validateForm();
     if (success === true) {
-      await login(formData);
+      // Pass the identifier (which can be username or email) and password to login
+      await login({ identifier: formData.identifier, password: formData.password });
     }
   };
 
@@ -47,9 +45,9 @@ const LoginPage = () => {
   }, [location]);
 
   return (
-    <div className="min-h-screen flex flex-col lg:grid lg:grid-cols-2 bg-gradient-to-br from-primary to-secondary">
-      <div className="flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 order-2 lg:order-1 min-h-screen lg:min-h-0">
-        <div className="w-full max-w-md space-y-6 sm:space-y-8 pt-24 lg:pt-8">
+    <div className="min-h-screen flex flex-col sm:grid sm:grid-cols-2" style={{ background: 'linear-gradient(to bottom right, var(--primary), var(--secondary))' }}>
+      <div className="flex flex-col justify-center items-center p-4 sm:p-6 order-2 sm:order-1 min-h-screen sm:min-h-0">
+        <div className="w-full max-w-md space-y-6 pt-8 sm:pt-8">
           {/* Back Button */}
           <div className="mb-4 relative z-50">
             <BackButton 
@@ -60,57 +58,66 @@ const LoginPage = () => {
           </div>
           
           {/* Header - Better alignment */}
-          <div className="text-center mb-6 sm:mb-8">
+          <div className="text-center mb-6">
             <div className="flex flex-col items-center gap-2 group">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-base-100 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all duration-200 shadow-xl">
-                <Mail className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-bold mt-4 text-base-100">Welcome Back</h1>
-              <p className="text-base sm:text-lg text-base-100/80">Sign in to your account</p>
+              <Logo size="lg" />
+              <h1 className="text-2xl font-bold mt-4" style={{ color: 'white' }}>Welcome Back</h1>
+              <p className="text-base" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Sign in to your account</p>
             </div>
           </div>
 
           {/* Login Form - Better spacing and alignment */}
-          <div className="bg-base-100 rounded-2xl p-6 sm:p-8 shadow-2xl border border-base-300">
-            <form onSubmit={handleLoginSubmit} className="space-y-6">
+          <div className="rounded-2xl p-6 shadow-2xl border" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
+            <form onSubmit={handleLoginSubmit} className="space-y-5">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-base-content">
-                  Email Address
+                <label className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  Username or Email
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-base-content/50" />
+                    <User className="h-5 w-5" style={{ color: 'var(--text-secondary)' }} />
                   </div>
                   <input
-                    type="email"
-                    className="input input-bordered w-full pl-10 bg-base-200 border-base-300 focus:border-primary focus:bg-base-100"
-                    placeholder="you@example.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    type="text"
+                    className="input w-full pl-10 py-3"
+                    placeholder="Enter username or email"
+                    value={formData.identifier}
+                    onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
                     required
+                    style={{ 
+                      backgroundColor: 'var(--background)', 
+                      borderColor: 'var(--border)', 
+                      color: 'var(--text-primary)'
+                    }}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-base-content">
+                <label className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                   Password
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-base-content/50" />
+                    <Lock className="h-5 w-5" style={{ color: 'var(--text-secondary)' }} />
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
-                    className="input input-bordered w-full pl-10 pr-10 bg-base-200 border-base-300 focus:border-primary focus:bg-base-100"
+                    className="input w-full pl-10 pr-10 py-3"
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     required
+                    style={{ 
+                      backgroundColor: 'var(--background)', 
+                      borderColor: 'var(--border)', 
+                      color: 'var(--text-primary)'
+                    }}
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-base-content/50 hover:text-primary transition-colors"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center transition-colors"
+                    style={{ color: 'var(--text-secondary)' }}
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
@@ -125,7 +132,8 @@ const LoginPage = () => {
               <div className="flex justify-end">
                 <Link 
                   to="/forgot-password" 
-                  className="text-sm text-primary hover:underline"
+                  className="text-sm hover:underline"
+                  style={{ color: 'var(--primary)' }}
                 >
                   Forgot password?
                 </Link>
@@ -133,8 +141,9 @@ const LoginPage = () => {
 
               <button 
                 type="submit" 
-                className="btn btn-primary w-full text-lg py-3 shadow-lg hover:shadow-xl" 
+                className="btn w-full text-base py-3 shadow-lg hover:shadow-xl" 
                 disabled={isLoggingIn}
+                style={{ backgroundColor: 'var(--primary)', color: 'white' }}
               >
                 {isLoggingIn ? (
                   <>
@@ -150,9 +159,9 @@ const LoginPage = () => {
 
           {/* Footer */}
           <div className="text-center">
-            <p className="text-base-100/80">
+            <p style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               Don't have an account?{" "}
-              <Link to="/signup" className="font-semibold text-base-100 underline underline-offset-2 hover:opacity-80">
+              <Link to="/signup" className="font-semibold underline underline-offset-2 hover:opacity-80" style={{ color: 'white' }}>
                 Create account
               </Link>
             </p>
@@ -160,10 +169,10 @@ const LoginPage = () => {
         </div>
       </div>
 
-      <div className="order-1 lg:order-2">
+      <div className="hidden sm:block order-1">
         <AuthImagePattern
           title={"Welcome back!"}
-          subtitle={"Sign in with your email and password to start chatting."}
+          subtitle={"Sign in with your username or email and password to start chatting."}
         />
       </div>
     </div>

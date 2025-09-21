@@ -5,6 +5,7 @@ import { Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import AuthImagePattern from "../components/AuthImagePattern";
 import BackButton from "../components/BackButton";
 import toast from "react-hot-toast";
+import Logo from "../components/Logo";
 
 const ResetPasswordPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -58,29 +59,28 @@ const ResetPasswordPage = () => {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex flex-col lg:grid lg:grid-cols-2 bg-gradient-to-br from-primary to-secondary">
-        <div className="flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 order-2 lg:order-1 min-h-screen lg:min-h-0">
-          <div className="w-full max-w-md space-y-6 sm:space-y-8 pt-24 lg:pt-8">
-            <div className="text-center mb-6 sm:mb-8">
+      <div className="min-h-screen flex flex-col sm:grid sm:grid-cols-2" style={{ background: 'linear-gradient(to bottom right, var(--primary), var(--secondary))' }}>
+        <div className="flex flex-col justify-center items-center p-4 sm:p-6 order-2 sm:order-1 min-h-screen sm:min-h-0">
+          <div className="w-full max-w-md space-y-6 pt-8 sm:pt-8">
+            <div className="text-center mb-6">
               <div className="flex flex-col items-center gap-2 group">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-base-100 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all duration-200 shadow-xl">
-                  <Lock className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-                </div>
-                <h1 className="text-2xl sm:text-3xl font-bold mt-4 text-base-100">Password Reset!</h1>
+                <Logo size="lg" />
+                <h1 className="text-2xl font-bold mt-4" style={{ color: 'white' }}>Password Reset!</h1>
               </div>
             </div>
 
-            <div className="bg-base-100 rounded-2xl p-6 sm:p-8 shadow-2xl border border-base-300">
+            <div className="rounded-2xl p-6 shadow-2xl border" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
               <div className="text-center space-y-4">
-                <div className="bg-success/10 text-success p-4 rounded-lg">
-                  <p className="font-medium">Password Changed Successfully</p>
-                  <p className="text-sm mt-2">
+                <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--surface-hover)' }}>
+                  <p className="font-medium" style={{ color: 'var(--text-primary)' }}>Password Changed Successfully</p>
+                  <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
                     Your password has been updated. You can now log in with your new password.
                   </p>
                 </div>
                 <button
                   onClick={() => navigate("/login")}
-                  className="btn btn-primary w-full"
+                  className="btn w-full py-3"
+                  style={{ backgroundColor: 'var(--primary)', color: 'white' }}
                 >
                   Go to Login
                 </button>
@@ -89,7 +89,7 @@ const ResetPasswordPage = () => {
           </div>
         </div>
 
-        <div className="order-1 lg:order-2">
+        <div className="hidden sm:block order-1">
           <AuthImagePattern
             title="Password Reset Complete"
             subtitle="Your account is now secured with a new password. Sign in to continue chatting."
@@ -100,9 +100,9 @@ const ResetPasswordPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:grid lg:grid-cols-2 bg-gradient-to-br from-primary to-secondary">
-      <div className="flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 order-2 lg:order-1 min-h-screen lg:min-h-0">
-        <div className="w-full max-w-md space-y-6 sm:space-y-8 pt-24 lg:pt-8">
+    <div className="min-h-screen flex flex-col sm:grid sm:grid-cols-2" style={{ background: 'linear-gradient(to bottom right, var(--primary), var(--secondary))' }}>
+      <div className="flex flex-col justify-center items-center p-4 sm:p-6 order-2 sm:order-1 min-h-screen sm:min-h-0">
+        <div className="w-full max-w-md space-y-6 pt-8 sm:pt-8">
           {/* Back Button */}
           <div className="mb-4 relative z-50">
             <BackButton 
@@ -112,39 +112,43 @@ const ResetPasswordPage = () => {
             />
           </div>
           
-          <div className="text-center mb-6 sm:mb-8">
+          <div className="text-center mb-6">
             <div className="flex flex-col items-center gap-2 group">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-base-100 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all duration-200 shadow-xl">
-                <Lock className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-bold mt-4 text-base-100">Reset Password</h1>
-              <p className="text-base sm:text-lg text-base-100/80">
+              <Logo size="lg" />
+              <h1 className="text-2xl font-bold mt-4" style={{ color: 'white' }}>Reset Password</h1>
+              <p className="text-base" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
                 Create a new password for your account
               </p>
             </div>
           </div>
 
-          <div className="bg-base-100 rounded-2xl p-6 sm:p-8 shadow-2xl border border-base-300">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="rounded-2xl p-6 shadow-2xl border" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-base-content">
+                <label className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                   New Password
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-base-content/50" />
+                    <Lock className="h-5 w-5" style={{ color: 'var(--text-secondary)' }} />
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
-                    className="input input-bordered w-full pl-10 pr-10 bg-base-200 border-base-300 focus:border-primary focus:bg-base-100"
+                    className="input w-full pl-10 pr-10 py-3"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    style={{ 
+                      backgroundColor: 'var(--background)', 
+                      borderColor: 'var(--border)', 
+                      color: 'var(--text-primary)'
+                    }}
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-base-content/50 hover:text-primary transition-colors"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center transition-colors"
+                    style={{ color: 'var(--text-secondary)' }}
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
@@ -154,15 +158,16 @@ const ResetPasswordPage = () => {
                     )}
                   </button>
                 </div>
-                <p className="text-xs mt-1 text-base-content/60">
+                <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
                   Password must be at least 6 characters long
                 </p>
               </div>
 
               <button 
                 type="submit" 
-                className="btn btn-primary w-full text-lg py-3 shadow-lg hover:shadow-xl" 
+                className="btn w-full text-base py-3 shadow-lg hover:shadow-xl" 
                 disabled={isSubmitting}
+                style={{ backgroundColor: 'var(--primary)', color: 'white' }}
               >
                 {isSubmitting ? (
                   <>
@@ -178,7 +183,7 @@ const ResetPasswordPage = () => {
         </div>
       </div>
 
-      <div className="order-1 lg:order-2">
+      <div className="hidden sm:block order-1">
         <AuthImagePattern
           title="Create New Password"
           subtitle="Choose a strong password to keep your account secure."

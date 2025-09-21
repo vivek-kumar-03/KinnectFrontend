@@ -26,6 +26,7 @@ const BackButton = ({
       className={`
         flex items-center gap-2 p-3 hover:bg-white/10 rounded-lg transition-all duration-200
         bg-white/5 backdrop-blur-sm border border-white/20 shadow-lg
+        min-h-[44px] min-w-[44px] // Minimum touch target size for mobile
         ${showOnDesktop ? '' : 'lg:hidden'}
         ${className}
       `}

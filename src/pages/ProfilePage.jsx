@@ -37,19 +37,21 @@ const ProfilePage = () => {
             <img
               src={selectedImg || authUser.profilePic || "/avatar.png"}
               alt="Profile"
-              className="size-32 rounded-full object-cover border-4 border-base-300 shadow-lg"
+              className="size-24 sm:size-32 rounded-full object-cover border-4 shadow-lg"
+              style={{ borderColor: 'var(--border)' }}
             />
             <label
               htmlFor="avatar-upload"
               className={`
                 absolute bottom-0 right-0 
                 hover:scale-105
-                p-2 bg-primary rounded-full cursor-pointer 
+                p-2 rounded-full cursor-pointer 
                 transition-all duration-200 shadow-lg
                 ${isUpdatingProfile ? "animate-pulse pointer-events-none" : ""}
               `}
+              style={{ backgroundColor: 'var(--primary)', color: 'white' }}
             >
-              <Camera className="w-5 h-5 text-primary-content" />
+              <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
               <input
                 type="file"
                 id="avatar-upload"
@@ -60,39 +62,47 @@ const ProfilePage = () => {
               />
             </label>
           </div>
-          <p className="text-sm text-base-content/70 text-center">
+          <p className="text-sm text-center px-4" style={{ color: 'var(--text-secondary)' }}>
             {isUpdatingProfile ? "Uploading..." : "Click the camera icon to update your photo"}
           </p>
         </div>
 
         <div className="space-y-6">
           <div className="space-y-3">
-            <div className="text-sm flex items-center gap-2 text-base-content/70 font-medium">
+            <div className="text-sm flex items-center gap-2 font-medium" style={{ color: 'var(--text-secondary)' }}>
               <User className="w-4 h-4" />
-              Full Name
+              Username
             </div>
-            <div className="input input-bordered bg-base-200 text-base-content">{authUser?.fullName}</div>
+            <div className="input text-base-content py-3" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}>{authUser?.username}</div>
           </div>
 
           <div className="space-y-3">
-            <div className="text-sm flex items-center gap-2 text-base-content/70 font-medium">
+            <div className="text-sm flex items-center gap-2 font-medium" style={{ color: 'var(--text-secondary)' }}>
+              <User className="w-4 h-4" />
+              Full Name
+            </div>
+            <div className="input text-base-content py-3" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}>{authUser?.fullName}</div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="text-sm flex items-center gap-2 font-medium" style={{ color: 'var(--text-secondary)' }}>
               <Mail className="w-4 h-4" />
               Email Address
             </div>
-            <div className="input input-bordered bg-base-200 text-base-content">{authUser?.email}</div>
+            <div className="input text-base-content py-3" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}>{authUser?.email}</div>
           </div>
         </div>
 
-        <div className="bg-base-200 rounded-xl p-6 border border-base-300">
-          <h2 className="text-lg font-semibold mb-4 text-base-content">Account Information</h2>
+        <div className="rounded-xl p-6 border" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
+          <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Account Information</h2>
           <div className="space-y-3 text-sm">
-            <div className="flex items-center justify-between py-2 border-b border-base-300">
-              <span className="text-base-content/70">Member Since</span>
-              <span className="text-base-content font-medium">{authUser.createdAt?.split("T")[0]}</span>
+            <div className="flex items-center justify-between py-2 border-b" style={{ borderColor: 'var(--border)' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>Member Since</span>
+              <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{authUser?.createdAt?.split("T")[0]}</span>
             </div>
             <div className="flex items-center justify-between py-2">
-              <span className="text-base-content/70">Account Status</span>
-              <span className="text-success font-medium">Active</span>
+              <span style={{ color: 'var(--text-secondary)' }}>Account Status</span>
+              <span className="font-medium" style={{ color: 'var(--success)' }}>Active</span>
             </div>
           </div>
         </div>

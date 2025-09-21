@@ -10,8 +10,11 @@ const ChatHeader = () => {
   const { selectedUser, setSelectedUser, startCall } = useChatStore();
   const { authUser, onlineUsers } = useAuthStore();
 
+  // Ensure onlineUsers is an array to prevent errors
+  const safeOnlineUsers = Array.isArray(onlineUsers) ? onlineUsers : [];
+
   // Check if selected user is online
-  const isUserOnline = onlineUsers.includes(selectedUser?._id);
+  const isUserOnline = safeOnlineUsers.includes(selectedUser?._id);
   
   const handleCall = (type) => {
     if (!selectedUser) {
@@ -30,14 +33,14 @@ const ChatHeader = () => {
     }
     
     if (!isUserOnline) {
-      toast.error(`${selectedUser.fullName} is currently offline`);
+      toast.error(`${selectedUser.username || selectedUser.fullName} is currently offline`);
       return;
     }
     
-    console.log(`Starting ${type} call with ${selectedUser.fullName}`);
+    console.log(`Starting ${type} call with ${selectedUser.username || selectedUser.fullName}`);
     
     // Start the call in the store
-    startCall(type, selectedUser._id, selectedUser.fullName);
+    startCall(type, selectedUser._id, selectedUser.username || selectedUser.fullName);
     
     // Emit call request to the backend
     socketManager.emit("callUser", {
@@ -47,7 +50,7 @@ const ChatHeader = () => {
       type
     });
     
-    toast.success(`Calling ${selectedUser.fullName}...`);
+    toast.success(`Calling ${selectedUser.username || selectedUser.fullName}...`);
   };
 
   const handleGoBack = () => {
@@ -55,7 +58,7 @@ const ChatHeader = () => {
   };
 
   return (
-    <div className="p-3 lg:p-4 backdrop-blur-sm border-b border-theme bg-theme-surface">
+    <div className="p-3 lg:p-4 backdrop-blur-sm border-b" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Mobile Back Button */}
@@ -64,7 +67,8 @@ const ChatHeader = () => {
               onClick={handleGoBack}
               label="Back"
               showOnDesktop={false}
-              className="border transition-colors bg-primary/10 border-theme text-theme-primary hover:bg-theme-surface-hover"
+              className="border transition-colors"
+              style={{ backgroundColor: 'var(--primary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
             />
           </div>
           
@@ -79,8 +83,8 @@ const ChatHeader = () => {
           </div>
 
           <div>
-            <h3 className="font-medium text-theme-primary">{selectedUser.fullName}</h3>
-            <p className="text-sm text-theme-secondary">
+            <h3 className="font-medium" style={{ color: 'var(--text-primary)' }}>{selectedUser.username || selectedUser.fullName}</h3>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               {isUserOnline ? (
                 <span className="flex items-center gap-1">
                   <span className="w-2 h-2 bg-success rounded-full"></span>
@@ -99,14 +103,16 @@ const ChatHeader = () => {
         <div className="flex items-center gap-2 lg:gap-4">
           <button 
             onClick={() => handleCall('video')} 
-            className="p-2 rounded-lg transition-colors text-theme-secondary hover:text-theme-primary hover:bg-theme-surface-hover"
+            className="p-2 rounded-lg transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
             title="Video call"
           >
             <BsCameraVideo size={20} />
           </button>
           <button 
             onClick={() => handleCall('audio')} 
-            className="p-2 rounded-lg transition-colors text-theme-secondary hover:text-theme-primary hover:bg-theme-surface-hover"
+            className="p-2 rounded-lg transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
             title="Voice call"
           >
             <BsTelephone size={20} />
@@ -115,7 +121,8 @@ const ChatHeader = () => {
           {/* Close button for desktop */}
           <button 
             onClick={handleGoBack}
-            className="hidden lg:flex p-2 rounded-lg transition-colors text-theme-secondary hover:text-theme-primary hover:bg-theme-surface-hover"
+            className="hidden lg:flex p-2 rounded-lg transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
             title="Close chat"
           >
             <X size={20} />

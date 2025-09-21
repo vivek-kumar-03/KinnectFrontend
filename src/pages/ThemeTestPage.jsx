@@ -1,81 +1,84 @@
-import { useTheme } from "../context/ThemeContext";
+import { useThemeStore } from "../store/useThemeStore";
 
 const ThemeTestPage = () => {
-  const { getAllThemes, updateTheme, currentTheme } = useTheme();
-  const themes = getAllThemes();
+  const { theme } = useThemeStore();
 
   return (
-    <div className="min-h-screen bg-theme-background p-8">
+    <div className="min-h-screen bg-base-100 p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-theme-primary mb-8">Theme Test Page</h1>
+        <h1 className="text-3xl font-bold text-base-content mb-8">Theme Test Page</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Theme Selector */}
-          <div className="bg-theme-surface p-6 rounded-xl border border-theme shadow-lg">
-            <h2 className="text-xl font-semibold text-theme-primary mb-4">Select Theme</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {Object.entries(themes).map(([themeName, themeData]) => (
-                <button
-                  key={themeName}
-                  onClick={() => updateTheme(themeName)}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-lg transition-all duration-200 ${
-                    currentTheme === themeName
-                      ? "ring-2 ring-primary bg-primary/10"
-                      : "hover:bg-theme-surface-hover"
-                  }`}
-                >
-                  <span className="text-2xl">{themeData.icon}</span>
-                  <span className="text-sm font-medium text-theme-primary">
-                    {themeData.name}
-                  </span>
-                </button>
-              ))}
+          {/* Theme Info */}
+          <div className="bg-base-200 p-6 rounded-xl border border-base-300 shadow-lg">
+            <h2 className="text-xl font-semibold text-base-content mb-4">Current Theme</h2>
+            <div className="space-y-4">
+              <div className="p-4 rounded-lg bg-base-300 border border-base-300">
+                <h3 className="font-medium text-base-content">Theme Name</h3>
+                <p className="text-lg font-bold text-primary mt-1">
+                  {theme}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg border border-base-300 bg-primary text-primary-content">
+                <h3 className="font-medium">Primary Color</h3>
+                <p className="text-sm text-primary-content/80 mt-1">
+                  This is the primary color
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg border border-base-300 bg-secondary text-secondary-content">
+                <h3 className="font-medium">Secondary Color</h3>
+                <p className="text-sm text-secondary-content/80 mt-1">
+                  This is the secondary color
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg bg-base-200 border border-base-300">
+                <h3 className="font-medium text-base-content">Text Colors</h3>
+                <p className="text-base-content mt-1">Primary Text</p>
+                <p className="text-base-content/70 mt-1">Secondary Text</p>
+              </div>
             </div>
           </div>
-
+          
           {/* Theme Preview */}
-          <div className="bg-theme-surface p-6 rounded-xl border border-theme shadow-lg">
-            <h2 className="text-xl font-semibold text-theme-primary mb-4">Current Theme</h2>
+          <div className="bg-base-200 p-6 rounded-xl border border-base-300 shadow-lg">
+            <h2 className="text-xl font-semibold text-base-content mb-4">Theme Preview</h2>
             <div className="space-y-4">
-              <div className="p-4 rounded-lg bg-theme-surface-hover border border-theme">
-                <h3 className="font-medium text-theme-primary">Surface Colors</h3>
-                <p className="text-sm text-theme-secondary mt-1">
-                  Background: <span className="font-mono">var(--background)</span>
+              <div className="p-4 rounded-lg bg-base-100 border border-base-300">
+                <h3 className="font-medium text-base-content">Surface Colors</h3>
+                <p className="text-sm text-base-content/70 mt-1">
+                  Base 100: Main background
                 </p>
-                <p className="text-sm text-theme-secondary mt-1">
-                  Surface: <span className="font-mono">var(--surface)</span>
+                <p className="text-sm text-base-content/70 mt-1">
+                  Base 200: Surface background
                 </p>
-                <p className="text-sm text-theme-secondary mt-1">
-                  Hover: <span className="font-mono">var(--surfaceHover)</span>
-                </p>
-              </div>
-
-              <div className="p-4 rounded-lg border border-theme" style={{ backgroundColor: 'var(--primary)' }}>
-                <h3 className="font-medium text-white">Primary Color</h3>
-                <p className="text-sm text-white/80 mt-1">
-                  Value: <span className="font-mono">var(--primary)</span>
+                <p className="text-sm text-base-content/70 mt-1">
+                  Base 300: Hover states
                 </p>
               </div>
-
-              <div className="p-4 rounded-lg border border-theme" style={{ backgroundColor: 'var(--secondary)' }}>
-                <h3 className="font-medium text-white">Secondary Color</h3>
-                <p className="text-sm text-white/80 mt-1">
-                  Value: <span className="font-mono">var(--secondary)</span>
+              
+              <div className="p-4 rounded-lg border border-base-300 bg-accent text-accent-content">
+                <h3 className="font-medium">Accent Color</h3>
+                <p className="text-sm text-accent-content/80 mt-1">
+                  This is the accent color
                 </p>
               </div>
-
-              <div className="p-4 rounded-lg bg-theme-surface border border-theme">
-                <h3 className="font-medium text-theme-primary">Text Colors</h3>
-                <p className="text-theme-primary mt-1">Primary Text</p>
-                <p className="text-theme-secondary mt-1">Secondary Text</p>
+              
+              <div className="p-4 rounded-lg border border-base-300 bg-neutral text-neutral-content">
+                <h3 className="font-medium">Neutral Color</h3>
+                <p className="text-sm text-neutral-content/80 mt-1">
+                  This is the neutral color
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Component Examples */}
-        <div className="mt-8 bg-theme-surface p-6 rounded-xl border border-theme shadow-lg">
-          <h2 className="text-xl font-semibold text-theme-primary mb-4">Component Examples</h2>
+        <div className="mt-8 bg-base-200 p-6 rounded-xl border border-base-300 shadow-lg">
+          <h2 className="text-xl font-semibold text-base-content mb-4">Component Examples</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 rounded-lg bg-primary text-primary-content">
@@ -85,14 +88,14 @@ const ThemeTestPage = () => {
               </button>
             </div>
             
-            <div className="p-4 rounded-lg bg-theme-surface border border-theme">
-              <h3 className="font-medium text-theme-primary">Surface Card</h3>
-              <p className="text-sm text-theme-secondary mt-1">
+            <div className="p-4 rounded-lg bg-base-200 border border-base-300">
+              <h3 className="font-medium text-base-content">Surface Card</h3>
+              <p className="text-sm text-base-content/70 mt-1">
                 This is a card with surface background
               </p>
             </div>
             
-            <div className="p-4 rounded-lg border border-theme" style={{ backgroundColor: 'var(--chatBubbleMe)', color: 'white' }}>
+            <div className="p-4 rounded-lg border border-base-300 bg-primary text-primary-content">
               <h3 className="font-medium">Chat Bubble</h3>
               <p className="text-sm mt-1">
                 This is a chat bubble

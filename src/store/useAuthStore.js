@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
+import { createSocketManager } from "../lib/socketManager"; // Import the factory function
+
+// Create a tab-specific socket manager instance for the auth store
+const authSocketManager = createSocketManager();
 
 // Generate unique tab ID
 const TAB_ID = `tab_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -29,72 +33,34 @@ const setTabAuthUser = (user) => {
   }
 };
 
-// Helper function to manage multi-user sessions across tabs
-const updateMultiUserSessions = (user, action = 'add') => {
+// Simplified function to manage user session (without multi-tab support)
+const updateUserSession = (user, action = 'add') => {
   try {
-    const sessions = JSON.parse(localStorage.getItem('multiUserSessions') || '{}');
-    
     if (action === 'add' && user) {
-      // Check if this user is already logged in another tab
-      const existingTabForUser = Object.keys(sessions).find(tabId => 
-        sessions[tabId].userId === user._id && tabId !== TAB_ID
-      );
-      
-      if (existingTabForUser) {
-        console.log(`User ${user.fullName} is already logged in on tab ${existingTabForUser}`);
-        // Allow multiple tabs for same user, but track them separately
-      }
-      
-      sessions[TAB_ID] = {
+      // Store user session data
+      const session = {
         userId: user._id,
         userName: user.fullName,
         profilePic: user.profilePic,
         loginTime: Date.now(),
-        lastActivity: Date.now(),
-        tabId: TAB_ID
+        lastActivity: Date.now()
       };
+      localStorage.setItem('userSession', JSON.stringify(session));
     } else if (action === 'remove') {
-      delete sessions[TAB_ID];
+      localStorage.removeItem('userSession');
     } else if (action === 'updateActivity' && user) {
-      if (sessions[TAB_ID]) {
-        sessions[TAB_ID].lastActivity = Date.now();
+      const session = JSON.parse(localStorage.getItem('userSession') || '{}');
+      if (session.userId) {
+        session.lastActivity = Date.now();
+        localStorage.setItem('userSession', JSON.stringify(session));
       }
     }
-    
-    // Clean up old/inactive sessions (older than 1 hour)
-    const now = Date.now();
-    Object.keys(sessions).forEach(tabId => {
-      if (now - sessions[tabId].lastActivity > 3600000) { // 1 hour
-        delete sessions[tabId];
-      }
-    });
-    
-    localStorage.setItem('multiUserSessions', JSON.stringify(sessions));
-    
-    // Broadcast session update
-    localStorage.setItem('sessionUpdate', JSON.stringify({
-      tabId: TAB_ID,
-      sessions,
-      timestamp: Date.now()
-    }));
-    localStorage.removeItem('sessionUpdate');
-    
   } catch (error) {
-    console.error('Error updating multi-user sessions:', error);
+    console.error('Error updating user session:', error);
   }
 };
 
-// Helper function to get all active user sessions
-const getActiveUserSessions = () => {
-  try {
-    return JSON.parse(localStorage.getItem('multiUserSessions') || '{}');
-  } catch (error) {
-    console.error('Error getting active user sessions:', error);
-    return {};
-  }
-};
-
-// Helper function to sync online users across tabs
+// Helper function to sync online users
 const syncOnlineUsers = (userIds) => {
   try {
     localStorage.setItem('onlineUsers', JSON.stringify(userIds || []));
@@ -118,12 +84,12 @@ export const useAuthStore = create((set, get) => {
   // Initialize with tab-specific auth user from sessionStorage
   const initialAuthUser = getTabAuthUser();
   
-  // Initialize multi-user sessions tracking
+  // Initialize user session tracking
   if (initialAuthUser) {
-    updateMultiUserSessions(initialAuthUser, 'add');
+    updateUserSession(initialAuthUser, 'add');
   }
   
-  // Listen for storage changes to sync data across tabs
+  // Listen for storage changes to sync data
   const handleStorageChange = (event) => {
     if (event.key === 'onlineUsers') {
       try {
@@ -132,16 +98,20 @@ export const useAuthStore = create((set, get) => {
       } catch (error) {
         console.error('Error parsing online users from storage:', error);
       }
-    } else if (event.key === 'sessionUpdate') {
-      try {
-        if (event.newValue) {
-          const sessionData = JSON.parse(event.newValue);
-          if (sessionData && sessionData.sessions) {
-            set({ activeUserSessions: sessionData.sessions });
-          }
-        }
-      } catch (error) {
-        console.error('Error parsing session update:', error);
+    }
+    // Check for same user login in different tabs
+    else if (event.key === 'authUser' && event.newValue) {
+      const currentUser = get().authUser;
+      const newUser = JSON.parse(event.newValue);
+      
+      if (currentUser && newUser && currentUser._id === newUser._id && currentUser.sessionId !== newUser.sessionId) {
+        // Same user logged in with different session - logout this tab
+        set({ authUser: null });
+        setTabAuthUser(null);
+        toast.error("You have been logged out because you logged in from another tab.");
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
       }
     }
   };
@@ -152,14 +122,14 @@ export const useAuthStore = create((set, get) => {
     
     // Handle tab close/refresh
     window.addEventListener('beforeunload', () => {
-      updateMultiUserSessions(null, 'remove');
+      updateUserSession(null, 'remove');
     });
     
     // Update activity periodically
     const activityInterval = setInterval(() => {
       const currentUser = get().authUser;
       if (currentUser) {
-        updateMultiUserSessions(currentUser, 'updateActivity');
+        updateUserSession(currentUser, 'updateActivity');
       }
     }, 30000); // Every 30 seconds
     
@@ -176,24 +146,61 @@ export const useAuthStore = create((set, get) => {
   isUpdatingProfile: false,
   isCheckingAuth: true,
   onlineUsers: getSyncedOnlineUsers(),
-  activeUserSessions: getActiveUserSessions(),
-  tabId: TAB_ID,
+  // Removed activeUserSessions and tabId since we're not using multi-tab functionality
   socket: null, // Keep socket state here, but don't manage connection here
+
+  // Add setter function
+  set: (state) => set(state),
 
   checkAuth: async () => {
     set({ isCheckingAuth: true });
     try {
       const res = await axiosInstance.get("/auth/check");
       const user = res.data;
+      console.log("User data received from checkAuth:", user);
+      console.log("User friends:", user.friends);
       set({ authUser: user });
       setTabAuthUser(user);
-      updateMultiUserSessions(user, 'add');
+      updateUserSession(user, 'add');
     } catch (error) {
+      console.log("Error in checkAuth:", error);
+      
+      // Check if session was invalidated
+      if (error.response?.data?.sessionInvalidated) {
+        console.log("Session was invalidated");
+        // Don't show error toast for session invalidation
+      }
+      
       set({ authUser: null });
       setTabAuthUser(null);
-      updateMultiUserSessions(null, 'remove');
+      updateUserSession(null, 'remove');
     } finally {
       set({ isCheckingAuth: false });
+    }
+  },
+
+  refreshAuthUser: async () => {
+    try {
+      const res = await axiosInstance.get("/auth/check");
+      const user = res.data;
+      console.log("Refreshing user data:", user);
+      set({ authUser: user });
+      setTabAuthUser(user);
+      updateUserSession(user, 'add');
+      
+      // Also update in localStorage for other tabs
+      if (typeof window !== 'undefined' && user) {
+        try {
+          localStorage.setItem('authUser', JSON.stringify(user));
+        } catch (e) {
+          console.error('Error saving auth user to localStorage:', e);
+        }
+      }
+      
+      return user;
+    } catch (error) {
+      console.log("Error refreshing auth user:", error);
+      return null;
     }
   },
 
@@ -202,10 +209,10 @@ export const useAuthStore = create((set, get) => {
     try {
       const res = await axiosInstance.post("/auth/signup", data);
       toast.success(res.data.message);
-      return true;
+      return { success: true, requiresOTP: res.data.requiresOTP, email: res.data.email };
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
-      return false;
+      return { success: false };
     } finally {
       set({ isSigningUp: false });
     }
@@ -216,14 +223,16 @@ export const useAuthStore = create((set, get) => {
     try {
       const res = await axiosInstance.post("/auth/login", data);
       const user = res.data;
+      
       set({ authUser: user });
       setTabAuthUser(user);
-      updateMultiUserSessions(user, 'add');
-      toast.success(res.data.message || "Logged in successfully!");
-      return true;
+      updateUserSession(user, 'add');
+      
+      toast.success("Logged in successfully!");
+      return { success: true, user };
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
-      return false;
+      return { success: false };
     } finally {
       set({ isLoggingIn: false });
     }
@@ -232,10 +241,19 @@ export const useAuthStore = create((set, get) => {
   logout: async () => {
     try {
       await axiosInstance.post("/auth/logout");
-      set({ authUser: null });
+      
+      set({ authUser: null, onlineUsers: [] });
       setTabAuthUser(null);
-      updateMultiUserSessions(null, 'remove');
+      updateUserSession(null, 'remove');
+      syncOnlineUsers([]);
       toast.success("Logged out successfully");
+      
+      // Disconnect socket on logout
+      const currentSocket = get().socket;
+      if (currentSocket) {
+        currentSocket.disconnect();
+      }
+      authSocketManager.disconnect();
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
     }
@@ -248,7 +266,7 @@ export const useAuthStore = create((set, get) => {
       const user = res.data;
       set({ authUser: user });
       setTabAuthUser(user);
-      updateMultiUserSessions(user, 'add');
+      updateUserSession(user, 'add');
       toast.success("Profile updated successfully");
     } catch (error) {
       console.log("error in update profile:", error);
@@ -259,23 +277,17 @@ export const useAuthStore = create((set, get) => {
   },
   
   // These functions are now handled in App.jsx
-  setSocket: (socket) => set({ socket }),
+  setSocket: (socketManager) => set({ socket: socketManager }),
   setOnlineUsers: (userIds) => {
-    set({ onlineUsers: userIds });
-    syncOnlineUsers(userIds);
+    // Ensure userIds is always an array
+    const safeUserIds = Array.isArray(userIds) ? userIds : [];
+    set({ onlineUsers: safeUserIds });
+    syncOnlineUsers(safeUserIds);
   },
   
-  // Get current tab's user info
-  getCurrentTabUser: () => {
-    const sessions = getActiveUserSessions();
-    return sessions[TAB_ID] || null;
-  },
-  
-  // Get all active user sessions across tabs
-  getAllActiveUsers: () => {
-    return Object.values(getActiveUserSessions());
-  },
-  
+  // Removed multi-tab specific functions
+
+
   // Cleanup function for removing event listeners
   cleanup: () => {
     if (typeof window !== 'undefined') {
@@ -284,7 +296,7 @@ export const useAuthStore = create((set, get) => {
         window.authStoreCleanup();
       }
     }
-    updateMultiUserSessions(null, 'remove');
+    updateUserSession(null, 'remove');
   }
   };
 });

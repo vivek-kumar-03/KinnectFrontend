@@ -480,39 +480,34 @@ export const useTheme = () => {
 
 // Theme provider component
 export const ThemeProvider = ({ children }) => {
-  const [currentTheme, setCurrentTheme] = useState('dark');
-  const [themeData, setThemeData] = useState(themes.dark);
-
-  // Apply theme to document
-  const applyTheme = (themeName) => {
-    const theme = themes[themeName] || themes.dark;
-    setThemeData(theme);
-    setCurrentTheme(themeName);
-    
-    // Apply CSS variables to root
-    const root = document.documentElement;
-    Object.keys(theme.colors).forEach(key => {
-      root.style.setProperty(`--${key}`, theme.colors[key]);
-    });
-    
-    // Store in localStorage
-    localStorage.setItem('custom-theme', themeName);
-  };
+  const [currentTheme, setCurrentTheme] = useState('light');
+  const [themeData, setThemeData] = useState(themes.light);
 
   // Initialize theme
   useEffect(() => {
-    const savedTheme = localStorage.getItem('custom-theme') || 'dark';
+    const savedTheme = localStorage.getItem('chat-theme') || 'light';
     applyTheme(savedTheme);
   }, []);
 
-  // Update theme function
-  const updateTheme = (themeName) => {
-    applyTheme(themeName);
+  // Apply theme function
+  const applyTheme = (themeName) => {
+    const theme = themes[themeName] || themes.light;
+    setThemeData(theme);
+    setCurrentTheme(themeName);
+    
+    // Apply CSS variables to document
+    const root = document.documentElement;
+    Object.entries(theme.colors).forEach(([key, value]) => {
+      root.style.setProperty(`--${key}`, value);
+    });
+    
+    // Store in localStorage
+    localStorage.setItem('chat-theme', themeName);
   };
 
   // Get theme info
   const getThemeInfo = (themeName) => {
-    return themes[themeName] || themes.dark;
+    return themes[themeName] || themes.light;
   };
 
   // Get all themes
@@ -523,7 +518,7 @@ export const ThemeProvider = ({ children }) => {
   const value = {
     currentTheme,
     themeData,
-    updateTheme,
+    applyTheme,
     getThemeInfo,
     getAllThemes
   };
